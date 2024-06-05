@@ -19,7 +19,7 @@ import DragAndDrop from "@/components/dragAndDrop";
 
 export default function DashboardPage() {
   const router = useRouter();
-  const { isConnected } = useAccount();
+  const { isConnected, address } = useAccount();
 
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
 
@@ -61,7 +61,10 @@ export default function DashboardPage() {
                 ) : (
                   <>
                     <p>Please select your file to upload.</p>
-                    <DragAndDrop />
+                    <DragAndDrop
+                      walletAddress={address as string}
+                      setUploading={setUploading}
+                    />
                   </>
                 )}
               </ModalBody>

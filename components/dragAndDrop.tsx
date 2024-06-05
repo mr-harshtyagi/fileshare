@@ -2,7 +2,13 @@
 
 import React, { useState } from "react";
 
-const DragAndDrop = () => {
+const DragAndDrop = ({
+  walletAddress,
+  setUploading,
+}: {
+  walletAddress: string;
+  setUploading: any;
+}) => {
   const [selectedFile, setSelectedFile] = useState(null);
 
   const handleDragOver = (event: any) => {
@@ -29,8 +35,10 @@ const DragAndDrop = () => {
     if (selectedFile) {
       // Handle file upload here
       console.log("Uploading file:", selectedFile);
+      setUploading(true);
 
-      await uploadFile(selectedFile);
+      await uploadFile(selectedFile, walletAddress);
+      setUploading(false);
     }
   };
 
@@ -63,9 +71,10 @@ const DragAndDrop = () => {
 
 export default DragAndDrop;
 
-const uploadFile = async (file: File) => {
+const uploadFile = async (file: File, walletAddress: string) => {
   const formData = new FormData();
   formData.append("file", file);
+  formData.append("walletAddress", walletAddress);
 
   try {
     const response = await fetch("/api/apillion/upload", {
