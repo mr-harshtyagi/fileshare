@@ -15,6 +15,7 @@ import {
 } from "@nextui-org/react";
 import MyFilesTable from "@/components/myFilesTable";
 import SharedFilesTable from "@/components/sharedFilesTable";
+import DragAndDrop from "@/components/dragAndDrop";
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -37,10 +38,10 @@ export default function DashboardPage() {
     // setUploading(false);
     // onOpenChange();
 
-    setTimeout(() => {
-      setUploading(false);
-      onOpenChange();
-    }, 2000);
+    // setTimeout(() => {
+    //   setUploading(false);
+    //   onOpenChange();
+    // }, 2000);
   };
   return (
     <>
@@ -60,11 +61,11 @@ export default function DashboardPage() {
                 ) : (
                   <>
                     <p>Please select your file to upload.</p>
-                    <input type="file" />
+                    <DragAndDrop />
                   </>
                 )}
               </ModalBody>
-              {!uploading && (
+              {/* {!uploading && (
                 <ModalFooter>
                   <Button color="danger" variant="light" onPress={onClose}>
                     Close
@@ -73,7 +74,7 @@ export default function DashboardPage() {
                     Upload
                   </Button>
                 </ModalFooter>
-              )}
+              )} */}
             </>
           )}
         </ModalContent>
