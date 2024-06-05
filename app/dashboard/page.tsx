@@ -28,9 +28,15 @@ export default function DashboardPage() {
     router.push("/");
   }
 
-  const handleUpload = () => {
+  const handleUpload = async () => {
     console.log("uploading...");
     setUploading(true);
+
+    // const result = await getAllBucketFiles();
+    // console.log(result);
+    // setUploading(false);
+    // onOpenChange();
+
     setTimeout(() => {
       setUploading(false);
       onOpenChange();
