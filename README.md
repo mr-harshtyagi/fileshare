@@ -1,6 +1,6 @@
-# Next.js & NextUI Template
+# FileShare
 
-This is a template for creating applications using Next.js 14 (app directory) and NextUI (v2).
+This is a file sharing Dapp built using Apillion SDK.
 
 [Try it on CodeSandbox](https://githubbox.com/nextui-org/next-app-template)
 
