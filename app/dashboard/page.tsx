@@ -13,6 +13,8 @@ import {
   useDisclosure,
   Spinner,
 } from "@nextui-org/react";
+import MyFilesTable from "@/components/myFilesTable";
+import SharedFilesTable from "@/components/sharedFilesTable";
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -72,16 +74,18 @@ export default function DashboardPage() {
       </Modal>
 
       <div className="flex justify-end px-8">
-        <Button onPress={onOpen}>+ Upload File</Button>
+        <Button color="primary" onPress={onOpen}>
+          + Upload File
+        </Button>
       </div>
 
       <div className="flex w-full flex-col justify-end">
         <Tabs aria-label="Options">
           <Tab key="my_files" title="My Files">
-            abcd
+            <MyFilesTable />
           </Tab>
           <Tab key="shared_with_me" title="Shared with me">
-            def
+            <SharedFilesTable />
           </Tab>
         </Tabs>
       </div>
