@@ -4,11 +4,6 @@ import { Storage, LogLevel, FileStatus } from "@apillon/sdk";
 import prisma from "@/prisma/prisma";
 
 export const runtime = "nodejs";
-export const config = {
-  api: {
-    bodyParser: false,
-  },
-};
 
 export async function POST(req: NextRequest, res: Response) {
   const data = await req.formData();

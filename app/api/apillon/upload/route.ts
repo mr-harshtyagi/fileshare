@@ -3,11 +3,6 @@ import { NextRequest, NextResponse } from "next/server";
 import { Storage, LogLevel, FileStatus } from "@apillon/sdk";
 
 export const runtime = "nodejs";
-export const config = {
-  api: {
-    bodyParser: false,
-  },
-};
 
 export async function POST(req: NextRequest, res: Response) {
   const data = await req.formData();
