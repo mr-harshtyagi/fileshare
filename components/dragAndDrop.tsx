@@ -90,7 +90,7 @@ const uploadFile = async (file: File, walletAddress: string) => {
   formData.append("walletAddress", walletAddress);
 
   try {
-    const response = await fetch("/api/apillion/upload", {
+    const response = await fetch("/api/apillon/upload", {
       method: "POST",
       body: formData,
     });

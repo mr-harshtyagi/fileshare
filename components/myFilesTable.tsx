@@ -65,7 +65,7 @@ export default function MyFilesTable({ walletAddress }: any) {
       formData.append("fileUuid", file.file_uuid);
 
       try {
-        const response = await fetch("/api/apillion/share", {
+        const response = await fetch("/api/apillon/share", {
           method: "POST",
           body: formData,
         });
@@ -94,7 +94,7 @@ export default function MyFilesTable({ walletAddress }: any) {
     formData.append("walletAddress", "0x1234567890");
 
     try {
-      const response = await fetch("/api/apillion/read", {
+      const response = await fetch("/api/apillon/read", {
         method: "POST",
         body: formData,
       });

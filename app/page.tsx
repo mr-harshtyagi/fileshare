@@ -29,7 +29,7 @@ export default function Home() {
         <br />
         <h1 className={title()}>any file easily.</h1>
         <h2 className={subtitle({ class: "mt-4" })}>
-          Build using Apillion platform.
+          Build using Apillon platform.
         </h2>
       </div>
 

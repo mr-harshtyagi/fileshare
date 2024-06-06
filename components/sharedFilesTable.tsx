@@ -46,7 +46,7 @@ export default function SharedFilesTable() {
     formData.append("walletAddress", address as string);
 
     try {
-      const response = await fetch("/api/apillion/read/shared-files", {
+      const response = await fetch("/api/apillon/read/shared-files", {
         method: "POST",
         body: formData,
       });

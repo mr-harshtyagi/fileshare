@@ -1,11 +1,11 @@
 # FileShare
 
-This is a file sharing Dapp built using Apillion SDK.
+This is a file sharing Dapp built using Apillon SDK.
 
 ## Technologies Used
 
 - [Next.js 14](https://nextjs.org/docs/getting-started)
-- [Apillion SDK](https://app.apillion.io/)
+- [Apillon SDK](https://app.apillon.io/)
 - [NextUI v2](https://nextui.org/)
 - [Tailwind CSS](https://tailwindcss.com/)
 - [TypeScript](https://www.typescriptlang.org/)
