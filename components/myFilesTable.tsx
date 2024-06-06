@@ -16,7 +16,8 @@ import {
   Input,
   Spinner,
 } from "@nextui-org/react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 
 const columns = [
   {
@@ -24,8 +25,8 @@ const columns = [
     label: "Name",
   },
   {
-    key: "size",
-    label: "Size",
+    key: "uuid",
+    label: "UUID",
   },
   {
     key: "date",
@@ -37,67 +38,64 @@ const columns = [
   },
 ];
 
-export default function MyFilesTable() {
+export default function MyFilesTable({ walletAddress }: any) {
   const [loading, setLoading] = useState(false);
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const [fileCid, setFileCid] = useState("");
-  const rows = [
-    {
-      key: "1",
-      name: "filessssffjslfjlsfjlksjflsjflksjf1.txt",
-      size: "1.5 KB",
-      date: "2021-12-01",
-      actions: (
-        <div className="flex gap-4">
-          <Button>Download </Button>
-          <Button
-            onPress={() => {
-              setFileCid("filessssffjslfjlsfjlksjflsjflksjf1.txt");
-              onOpen();
-            }}
-            color="primary"
-          >
-            Share{" "}
-          </Button>
-        </div>
-      ),
-    },
-    {
-      key: "2",
-      name: "file2.txt",
-      size: "2.0 KB",
-      date: "2021-12-02",
-      actions: (
-        <div className="flex gap-4">
-          <Button>Download </Button>
-          <Button onPress={onOpen} color="primary">
-            Share{" "}
-          </Button>
-        </div>
-      ),
-    },
-    {
-      key: "3",
-      name: "file3.txt",
-      size: "1.8 KB",
-      date: "2021-12-03",
-      actions: (
-        <div className="flex gap-4">
-          <Button>Download </Button>
-          <Button onPress={onOpen} color="primary">
-            Share{" "}
-          </Button>
-        </div>
-      ),
-    },
-  ];
+  const [rows, setRows] = useState<any>([]); // [] as initial value
 
-  const handleUpload = () => {
+  useEffect(() => {
     setLoading(true);
-    setTimeout(() => {
+    readFiles();
+  }, []);
+
+  const readFiles = async () => {
+    const formData = new FormData();
+    const directoryUuid = localStorage.getItem(walletAddress);
+    formData.append("directoryUuid", directoryUuid as string);
+    formData.append("walletAddress", "0x1234567890");
+
+    try {
+      const response = await fetch("/api/apillion/read", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to upload file");
+      }
+
+      const data = await response.json();
+      console.log("File read successfully:", data);
+      const tableRows = data.data.items.map((file: any) => {
+        return {
+          key: file.uuid,
+          name: file.name,
+          uuid: file.uuid,
+          date: new Date(file.createTime).toDateString(),
+          actions: (
+            <div className="flex gap-4">
+              <Button onClick={() => window.open(file.link, "_blank")}>
+                Download{" "}
+              </Button>
+              <Button
+                onPress={() => {
+                  setFileCid(`${file.name} (${file.uuid}) `);
+                  onOpen();
+                }}
+                color="primary"
+              >
+                Share{" "}
+              </Button>
+            </div>
+          ),
+        };
+      });
+      setRows(tableRows);
       setLoading(false);
-      onOpenChange();
-    }, 2000);
+    } catch (error) {
+      console.error("Error reading file:", error);
+    }
   };
 
   return (
@@ -128,36 +126,32 @@ export default function MyFilesTable() {
                   </>
                 )}
               </ModalBody>
-              {!loading && (
-                <ModalFooter>
-                  <Button color="danger" variant="light" onPress={onClose}>
-                    Close
-                  </Button>
-                  <Button color="primary" onClick={handleUpload}>
-                    Upload
-                  </Button>
-                </ModalFooter>
-              )}
             </>
           )}
         </ModalContent>
       </Modal>
-      <Table aria-label="my files table">
-        <TableHeader>
-          {columns.map((column) => (
-            <TableColumn key={column.key}>{column.label}</TableColumn>
-          ))}
-        </TableHeader>
-        <TableBody>
-          {rows.map((row) => (
-            <TableRow key={row.key}>
-              {(columnKey: any) => (
-                <TableCell>{getKeyValue(row, columnKey)}</TableCell>
-              )}
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+      {loading ? (
+        <div className="flex justify-center w-full mt-16">
+          <Spinner size="lg" />
+        </div>
+      ) : (
+        <Table aria-label="my files table">
+          <TableHeader>
+            {columns.map((column) => (
+              <TableColumn key={column.key}>{column.label}</TableColumn>
+            ))}
+          </TableHeader>
+          <TableBody>
+            {rows.map((row: any) => (
+              <TableRow key={row.key}>
+                {(columnKey: any) => (
+                  <TableCell>{getKeyValue(row, columnKey)}</TableCell>
+                )}
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      )}
     </>
   );
 }

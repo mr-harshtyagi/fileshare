@@ -1,6 +1,6 @@
 // components/DragAndDrop.js
 
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 
 const DragAndDrop = ({
   walletAddress,
@@ -10,6 +10,7 @@ const DragAndDrop = ({
   setUploading: any;
 }) => {
   const [selectedFile, setSelectedFile] = useState(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleDragOver = (event: any) => {
     event.preventDefault();
@@ -28,6 +29,12 @@ const DragAndDrop = ({
 
   const handleFileChange = (event: any) => {
     setSelectedFile(event.target.files[0]);
+  };
+
+  const handleClick = () => {
+    if (fileInputRef.current) {
+      fileInputRef.current.click();
+    }
   };
 
   const handleSubmit = async (event: any) => {
@@ -49,6 +56,7 @@ const DragAndDrop = ({
           className="w-80 h-48 border-2 border-dashed border-gray-400 rounded-md flex justify-center items-center text-center p-4"
           onDragOver={handleDragOver}
           onDrop={handleDrop}
+          onClick={handleClick}
         >
           {selectedFile ? (
             //@ts-ignore
@@ -56,7 +64,12 @@ const DragAndDrop = ({
           ) : (
             <p>Drag & drop a file here, or click to select one</p>
           )}
-          <input type="file" className="hidden" onChange={handleFileChange} />
+          <input
+            ref={fileInputRef}
+            type="file"
+            className="hidden"
+            onChange={handleFileChange}
+          />
         </div>
         <button
           type="submit"
@@ -87,7 +100,13 @@ const uploadFile = async (file: File, walletAddress: string) => {
     }
 
     const data = await response.json();
-    console.log("File uploaded successfully:", data);
+    console.log("File uploaded successfully:", data.file);
+    // fidn directoryUuid in localStorage
+    const directoryUuid = localStorage.getItem(walletAddress);
+    console.log("directoryUuid", directoryUuid);
+    if (directoryUuid !== data.file.directoryUuid) {
+      localStorage.setItem(walletAddress, data.file.directoryUuid);
+    }
   } catch (error) {
     console.error("Error uploading file:", error);
   }

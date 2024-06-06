@@ -29,20 +29,6 @@ export default function DashboardPage() {
     router.push("/");
   }
 
-  const handleUpload = async () => {
-    console.log("uploading...");
-    setUploading(true);
-
-    // const result = await getAllBucketFiles();
-    // console.log(result);
-    // setUploading(false);
-    // onOpenChange();
-
-    // setTimeout(() => {
-    //   setUploading(false);
-    //   onOpenChange();
-    // }, 2000);
-  };
   return (
     <>
       <Modal isOpen={isOpen} onOpenChange={onOpenChange}>
@@ -68,16 +54,6 @@ export default function DashboardPage() {
                   </>
                 )}
               </ModalBody>
-              {/* {!uploading && (
-                <ModalFooter>
-                  <Button color="danger" variant="light" onPress={onClose}>
-                    Close
-                  </Button>
-                  <Button color="primary" onClick={handleUpload}>
-                    Upload
-                  </Button>
-                </ModalFooter>
-              )} */}
             </>
           )}
         </ModalContent>
@@ -92,7 +68,7 @@ export default function DashboardPage() {
       <div className="flex w-full flex-col justify-end">
         <Tabs aria-label="Options">
           <Tab key="my_files" title="My Files">
-            <MyFilesTable />
+            <MyFilesTable walletAddress={address as string} />
           </Tab>
           <Tab key="shared_with_me" title="Shared with me">
             <SharedFilesTable />
