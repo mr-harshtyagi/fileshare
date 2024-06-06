@@ -7,10 +7,11 @@ import {
   TableRow,
   TableCell,
   getKeyValue,
-  Input,
   Spinner,
 } from "@nextui-org/react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+
+import { useAccount } from "wagmi";
 
 const columns = [
   {
@@ -18,8 +19,8 @@ const columns = [
     label: "Name",
   },
   {
-    key: "size",
-    label: "Size",
+    key: "uuid",
+    label: "UUID",
   },
   {
     key: "date",
@@ -32,62 +33,76 @@ const columns = [
 ];
 
 export default function SharedFilesTable() {
+  const { address } = useAccount();
   const [loading, setLoading] = useState(false);
-  const [fileCid, setFileCid] = useState("");
-  const rows = [
-    {
-      key: "1",
-      name: "filessssffjslfjlsfjlksjflsjflksjf1.txt",
-      size: "1.5 KB",
-      date: "2021-12-01",
-      actions: (
-        <div className="flex gap-4">
-          <Button>Download </Button>
-        </div>
-      ),
-    },
-    {
-      key: "2",
-      name: "file2.txt",
-      size: "2.0 KB",
-      date: "2021-12-02",
-      actions: (
-        <div className="flex gap-4">
-          <Button>Download </Button>
-        </div>
-      ),
-    },
-    {
-      key: "3",
-      name: "file3.txt",
-      size: "1.8 KB",
-      date: "2021-12-03",
-      actions: (
-        <div className="flex gap-4">
-          <Button>Download </Button>
-        </div>
-      ),
-    },
-  ];
+  const [rows, setRows] = useState<any>([]); // [] as initial value
+  useEffect(() => {
+    setLoading(true);
+    readSharedFiles();
+  }, []);
+
+  const readSharedFiles = async () => {
+    const formData = new FormData();
+    formData.append("walletAddress", address as string);
+
+    try {
+      const response = await fetch("/api/apillion/read/shared-files", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to read shared file");
+      }
+
+      const data = await response.json();
+
+      const tableRows = data.data.items.map((file: any) => {
+        return {
+          key: file.uuid,
+          name: file.name,
+          uuid: file.uuid,
+          date: new Date(file.createTime).toDateString(),
+          actions: (
+            <div className="flex gap-4">
+              <Button onClick={() => window.open(file.link, "_blank")}>
+                View{" "}
+              </Button>
+            </div>
+          ),
+        };
+      });
+      setRows(tableRows);
+      setLoading(false);
+    } catch (error) {
+      console.error("Error reading file:", error);
+    }
+  };
 
   return (
     <>
-      <Table aria-label="my files table">
-        <TableHeader>
-          {columns.map((column) => (
-            <TableColumn key={column.key}>{column.label}</TableColumn>
-          ))}
-        </TableHeader>
-        <TableBody>
-          {rows.map((row) => (
-            <TableRow key={row.key}>
-              {(columnKey: any) => (
-                <TableCell>{getKeyValue(row, columnKey)}</TableCell>
-              )}
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+      {loading ? (
+        <div className="flex justify-center w-full mt-16">
+          <Spinner size="lg" />
+        </div>
+      ) : (
+        <Table aria-label="my files table">
+          <TableHeader>
+            {columns.map((column) => (
+              <TableColumn key={column.key}>{column.label}</TableColumn>
+            ))}
+          </TableHeader>
+          <TableBody>
+            {rows.map((row: any) => (
+              <TableRow key={row.key}>
+                {(columnKey: any) => (
+                  <TableCell>{getKeyValue(row, columnKey)}</TableCell>
+                )}
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      )}
     </>
   );
 }

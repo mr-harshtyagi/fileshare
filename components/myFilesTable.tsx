@@ -17,7 +17,9 @@ import {
   Spinner,
 } from "@nextui-org/react";
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { isAddress } from "viem";
+import { useAccount } from "wagmi";
+import { SuccessIcon } from "./icons";
 
 const columns = [
   {
@@ -39,15 +41,51 @@ const columns = [
 ];
 
 export default function MyFilesTable({ walletAddress }: any) {
+  const { address } = useAccount();
   const [loading, setLoading] = useState(false);
+  const [sharing, setSharing] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
-  const [fileCid, setFileCid] = useState("");
+  const [file, setFile] = useState({ file_name: "", file_uuid: "" });
   const [rows, setRows] = useState<any>([]); // [] as initial value
-
+  const [wallet, setWallet] = useState("");
   useEffect(() => {
     setLoading(true);
     readFiles();
   }, []);
+
+  async function handleShare() {
+    // validate eth
+    if (isAddress(wallet)) {
+      setSharing(true);
+
+      const formData = new FormData();
+      formData.append("sharedBy", address as string);
+      formData.append("sharedWith", wallet);
+      formData.append("fileUuid", file.file_uuid);
+
+      try {
+        const response = await fetch("/api/apillion/share", {
+          method: "POST",
+          body: formData,
+        });
+
+        if (!response.ok) {
+          throw new Error("Failed to share file");
+        }
+
+        const data = await response.json();
+        console.log("File share successful:", data);
+
+        setSharing(false);
+        setWallet("");
+        setIsSuccess(true);
+      } catch (error) {
+        console.error("Error sharing file:", error);
+        setSharing(false);
+      }
+    }
+  }
 
   const readFiles = async () => {
     const formData = new FormData();
@@ -80,7 +118,8 @@ export default function MyFilesTable({ walletAddress }: any) {
               </Button>
               <Button
                 onPress={() => {
-                  setFileCid(`${file.name} (${file.uuid}) `);
+                  setFile({ file_name: file.name, file_uuid: file.uuid });
+                  setIsSuccess(false);
                   onOpen();
                 }}
                 color="primary"
@@ -104,28 +143,60 @@ export default function MyFilesTable({ walletAddress }: any) {
         <ModalContent>
           {(onClose: any) => (
             <>
-              <ModalHeader className="flex flex-col gap-1">
-                Share your file
-              </ModalHeader>
-              <ModalBody>
-                {loading ? (
-                  <div className="flex flex-col items-center gap-4 justify-center">
-                    <Spinner />
-                    <p>Please wait...</p>
+              {!isSuccess ? (
+                <>
+                  <ModalHeader className="flex flex-col gap-1">
+                    Share your file
+                  </ModalHeader>
+                  <ModalBody>
+                    {loading ? (
+                      <div className="flex flex-col items-center gap-4 justify-center">
+                        <Spinner />
+                        <p>Please wait...</p>
+                      </div>
+                    ) : (
+                      <>
+                        {sharing ? (
+                          <div className="flex flex-col items-center gap-4 justify-center w-full my-6">
+                            <Spinner size="lg" />
+                            <p>Sharing...</p>
+                          </div>
+                        ) : (
+                          <>
+                            <p>
+                              File : {file.file_name + `(${file.file_uuid})`}
+                            </p>
+                            <div className="flex w-full flex-wrap md:flex-nowrap gap-4">
+                              <Input
+                                type="text"
+                                label="Wallet Address"
+                                value={wallet}
+                                onChange={(e) => setWallet(e.target.value)}
+                                placeholder="Enter receiver's wallet address"
+                                required
+                              />
+                            </div>
+                            <Button
+                              color="secondary"
+                              onClick={handleShare}
+                              isDisabled={!isAddress(wallet)}
+                            >
+                              Share
+                            </Button>
+                          </>
+                        )}
+                      </>
+                    )}
+                  </ModalBody>
+                </>
+              ) : (
+                <div className="flex flex-col items-center justify-center gap-4 w-full p-4">
+                  <div>
+                    <SuccessIcon />
                   </div>
-                ) : (
-                  <>
-                    <p>File : {fileCid}</p>
-                    <div className="flex w-full flex-wrap md:flex-nowrap gap-4">
-                      <Input
-                        type="text"
-                        label="Wallet Address"
-                        placeholder="Enter receiver's wallet address"
-                      />
-                    </div>
-                  </>
-                )}
-              </ModalBody>
+                  <p>Sharing Successful.</p>
+                </div>
+              )}
             </>
           )}
         </ModalContent>
